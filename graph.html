@@ -1,0 +1,108 @@
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="src/bootstrap.min.css">
+		<link rel="stylesheet" href="src/dc.min.css">
+		<title></title>
+	</head>
+	<body>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-6">
+					<div id="making-skills">
+						
+					</div>
+				</div>
+
+			</div>
+		<div class="row">
+				<div class="col-lg-6">
+				<div id="citizenship">
+						
+				</div>
+				</div>
+		</div>
+		</div>
+	</body>
+	 <script type="text/javascript" src="/src/jquery-3.3.1.min.js"></script>
+	 <script type="text/javascript" src="/src/bootstrap.min.js"></script>
+	 <script src="/src/d3.v5.min.js"></script>
+	 <script src="/src/d3-force-3d.min.js"></script>
+	 <script src="/src/crossfilter.min.js"></script>
+	 <script src="/src/dc.js"></script>
+	 <script>
+
+	 	var chart = dc.barChart("#making-skills");
+	 	var chart2 = dc.barChart("#citizenship")
+		d3.csv("DataViz-DSMaking_Skills.csv").then(function(results) {
+			d3.csv("DataViz-Citizenships.csv").then(function(results2) {
+			console.log(results)
+			var things = [];
+
+			results.forEach(function(d){
+				var personobj = {}
+				for(key in d){
+					
+					if (key == "Name"){
+						personobj.name = d["Name"]
+					}
+					else{
+						if(d[key] == "y"){
+							personobj.makingSkill = key
+						}
+					}
+				}
+				things.push(personobj)
+			})
+			var index= 0
+			results2.forEach(function(d){
+				//var personobj = {}
+				for(key in d){
+					if(d[key] == "y"){
+						things[index].citizenship = key
+					}
+				}
+				index++
+				//things.push(personobj)
+			})
+			console.log(things)
+
+		  var ndx                 = crossfilter(things),
+		      Skilldimension        = ndx.dimension(function(d) {return d.makingSkill;}),
+		      Cdimension = ndx.dimension(function(d) {return d.citizenship;})
+		      Sumgroup       = Skilldimension.group().reduceSum(function(d) {return 1});
+		      Cgroup       = Cdimension.group().reduceSum(function(d) {return 1});
+      chart
+          .width(500)
+          .height(280)
+          .x(d3.scaleBand().domain(["Underdeveloped","Emerging","Almost Competent","Competent","Beyond Competent"]))
+          .xUnits(dc.units.ordinal)
+          .brushOn(false)
+          .xAxisLabel('Making Proficiencies')
+          .yAxisLabel('Count')
+          .dimension(Skilldimension)
+          .barPadding(0.1)
+          .outerPadding(0.05)
+          .group(Sumgroup);
+
+
+       chart2
+          .width(700)
+          .height(280)
+          .x(d3.scaleBand().domain(["Failed","Almost Recognized","Recognized","Almost Participatory","Participatory","Almost Transformative","Transformative"]))
+          .xUnits(dc.units.ordinal)
+          .brushOn(false)
+          .xAxisLabel('Citizenship Proficiencies')
+          .yAxisLabel('Count')
+          .dimension(Cdimension)
+          .barPadding(0.1)
+          .outerPadding(0.05)
+          .group(Cgroup);
+    	chart.render();
+    	chart2.render()
+});
+});
+
+	 	
+	 </script>
+</html>
