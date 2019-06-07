@@ -3,8 +3,7 @@
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="src/bootstrap.min.css">
 		<link rel="stylesheet" href="src/dc.min.css">
-		<title>Citizenship</title>
-
+		<title></title>
 		<style>
 			.hidden {
 				display: none;
@@ -14,41 +13,36 @@
 	</head>
 	<body>
 		<div class="container-fluid">
+		<div class="row">
+			<div class="col-12">
+	<!--	<div class="container-fluid">
 			<div class="row">
-				<div class="col-lg-4">
+				<div class="col-lg-6">
 					<div id="making-skills">
 						
 					</div>
 				</div>
-				<div class="col-lg-4">
+
+			</div>
+		<div class="row">
+				<div class="col-lg-6">
 				<div id="citizenship">
 						
 				</div>
 				</div>
-
-			</div>
-
-		<div class="row">
-							<div class="col-12">
+		</div>
+		</div>-->
 		<h5>Word co-occurrence graph</h5>
 		<input type="text" id="search-input" placeholder="search word in graph"/>
 		<div id="svggraph" >
-			<svg id="viz" style="border-style:solid; border-width: 1px">
+			<svg id="viz">
 				
 			</svg>
 			
 		</div>
 	</div>
-		</div>
-		<div class="row">
-			<div class="col-10">
-				<table id="dc-doc-table">
-					
-				</table>
-
-			</div>
-		</div>
-		</div>
+	</div>
+</div>
 	</body>
 	 <script type="text/javascript" src="src/jquery-3.3.1.min.js"></script>
 	 <script type="text/javascript" src="src/bootstrap.min.js"></script>
@@ -57,112 +51,23 @@
 	 <script src="src/crossfilter.min.js"></script>
 	 <script src="src/dc.js"></script>
 	 <script>
-
-
-
-
-		async function wrapper(){
-
-
-
-
-
-				 	var chart = dc.barChart("#making-skills");
-	 	var chart2 = dc.barChart("#citizenship")
-		var results = await d3.csv("DataViz-DSMaking_Skills.csv")
-		var results2 = await d3.csv("DataViz-Citizenships.csv")
-		var formatted_citizenship = await d3.json("formatted_citizenship.json")
-			var things = [];
-
-			results.forEach(function(d){
-				var personobj = {}
-				for(key in d){
-					
-					if (key == "Name"){
-						personobj.name = d["Name"]
-					}
-					else{
-						if(d[key] == "y"){
-							personobj.makingSkill = key
-						}
-					}
-				}
-				things.push(personobj)
-			})
-			var index= 0
-			results2.forEach(function(d){
-				//var personobj = {}
-				for(key in d){
-					if(d[key] == "y"){
-						things[index].citizenship = key
-					}
-				}
-				index++
-				//things.push(personobj)
-			})
-
-			things.forEach(function(person){
-				person.textanswer = formatted_citizenship[person.name].text
-			})
-			console.log(things)
-
-		  var ndx                 = crossfilter(things),
-		      Skilldimension        = ndx.dimension(function(d) {return d.makingSkill;}),
-		      Cdimension = ndx.dimension(function(d) {return d.citizenship;})
-		      Sumgroup       = Skilldimension.group().reduceSum(function(d) {return 1});
-		      Cgroup       = Cdimension.group().reduceSum(function(d) {return 1});
-      chart
-          .width(500)
-          .height(280)
-          .x(d3.scaleBand().domain(["Underdeveloped","Emerging","Almost Competent","Competent","Beyond Competent"]))
-          .xUnits(dc.units.ordinal)
-          .brushOn(false)
-          .xAxisLabel('Making Proficiencies')
-          .yAxisLabel('Count')
-          .dimension(Skilldimension)
-          .barPadding(0.1)
-          .outerPadding(0.05)
-          .group(Sumgroup)
-          .on('preRender', function(d){
-          	renderTable(d.dimension().top(1000))
-          })
-          .on('postRedraw', function(d){
-          	renderTable(d.dimension().top(1000))
-          });
-
-
-       chart2
-          .width(700)
-          .height(280)
-          .x(d3.scaleBand().domain(["Failed","Almost Recognized","Recognized","Almost Participatory","Participatory","Almost Transformative","Transformative"]))
-          .xUnits(dc.units.ordinal)
-          .brushOn(false)
-          .xAxisLabel('Citizenship Proficiencies')
-          .yAxisLabel('Count')
-          .dimension(Cdimension)
-          .barPadding(0.1)
-          .outerPadding(0.05)
-          .group(Cgroup);
-    	chart.render();
-    	chart2.render()
-
-
+	 	async function wrapper(){
 
 	 	var wnode = d3.select("#whfnerognognwejhfbwuehbfouwhefbuhbef")
 	 	$('#search-input').on("change", function(e){
 	 		if(wnode._groups[0][0] != null){
-	 			svg.dispatch("click")
+	 			wnode.dispatch("mouseout")
 	 		}
 	 		wnode = d3.select("#"+ $(this).val())
 	 		if(wnode._groups[0][0] != null){
-	 			wnode.dispatch("click")
+	 			wnode.dispatch("mouseover")
 	 		}
 	 	})
 	 	var svg = d3.select("#force_svg")
 	 	var graph = await d3.json("data.json")
 	 	console.log(graph)
 	 	var width = 1000;
-var height = 600;
+var height = 800;
 var color = d3.scaleOrdinal(d3.schemeCategory10);
 
 
@@ -193,6 +98,7 @@ var graphLayout = d3.forceSimulation(graph.nodes)
     .on("tick", ticked);
 
 
+graphLayout.nodes().filter(function(d){d.weight==0})
 
 var adjlist = [];
 
@@ -237,7 +143,9 @@ var node = container.append("g").attr("class", "nodes")
     	return Math.sqrt(d.count/Math.PI)
     })
     .attr("fill", function(d) { return color(d.group); })*/
-
+    .on("click", function(d){
+    	console.log(d)
+    })
 
 
 node.append("circle").attr("r", function(d){
@@ -246,9 +154,10 @@ node.append("circle").attr("r", function(d){
     .attr("fill", function(d) { return color(d.group); })
 
 node.append("text")
-	.style("font-size", "6px")
+	.style("font-size", "8px")
 	.classed("labeltext", true)
 	.classed("hidden", function(d){
+		
 		if(d.count > 10){
 			return false
 		}
@@ -259,18 +168,8 @@ node.append("text")
 	})
 
 console.log(node)
-var selected
-node.on("click", function(d){
-	focus(d3.select(this))
-})
-svg.on("click", function(d){
-	if (d3.event.target == this){
-		unfocus(d3.select(this))
-	}
 
-	
-})
-//node.on("mouseover", focus).on("mouseout", unfocus);
+node.on("mouseover", focus).on("mouseout", unfocus);
 
 node.call(
     d3.drag()
@@ -390,65 +289,22 @@ function dragended(d) {
 }
 
 
-function renderTable(tabledata){
-	console.log("HEREHEHRE")
-	d3.select('.tdoc-head').remove()
-    d3.select('.tdoc-body').remove()
-    d3.selectAll(".tdoc-row").remove()
-   var table = d3.select("#dc-doc-table")
-   var thead = table.append("thead").attr("class", "tdoc-head")
-   var tbody = table.append("tbody")
-                   .attr("class", "tdoc-body")
-   var columns = ['name', 'makingSkill', 'citizenship', 'textanswer']
-   thead.append("tr")
-       .selectAll("th").data(columns)
-           .enter()
-           .append("th")
-           .attr("class", "col tdoc-th")
-           .style("width", function(d){
-           	console.log(d)
-           	if (d == 'textanswer'){
-           		return '70%'
-           	}
-           	return '10%'
-           })
-           .text(function(column){
-               return column
-           })
-	
-	
-	var tbody = d3.select(".tdoc-body")
 
-	var rows = tbody
-		.selectAll("tr")
-		.data(tabledata)
-		.enter()
-		.append("tr")
-		.attr("class", "tdoc-row")
-
-	var cells = rows
-		.selectAll("td")
-		.data(function(row){
-			return columns.map(function(column){
-				return {column: column, value : row[column]}
-			})
-		})
-		.enter()
-		.append("td")
-		.text(function(d){
-			return d.value
-		})
-		.attr("class", function(d){
-			return "td-" + d.column
-		})
-
-
-}
 	 	}
 
 	 	wrapper()
 	 	
-
-	 	
 	 </script>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
