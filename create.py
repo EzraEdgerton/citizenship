@@ -18,6 +18,7 @@ f = open("formatted_citizenship.json", "r")
 d = json.load(f)
 
 minimum_count_for_link = 4
+word_window = 5
 
 
 corpus = []
@@ -46,8 +47,8 @@ occurrences = OrderedDict((name, OrderedDict((name, 0) for name in names)) for n
 # Find the co-occurrences:
 for l in document:
 	for i in range(len(l)):
-		print(l[i - 5:i] + l[i + 5:])
-		for item in l[i - 5:i] + l[i + 5:]:
+		print(l[i - word_window:i] + l[i + word_window:])
+		for item in l[i - word_window :i] + l[i + word_window:]:
 			occurrences[l[i]][item] += 1
 
 
