@@ -17,6 +17,7 @@ s = ['makes', 'many', 'way','also','theres','lot','see','dont','people','today',
 f = open("formatted_citizenship.json", "r")
 d = json.load(f)
 
+minimum_count_for_link = 4
 
 
 corpus = []
@@ -77,7 +78,8 @@ for x in wcounts.keys():
 	graphd["nodes"].append({
 		"id" : x,
 		"word" : x,
-		"count" : wcounts[x]
+		"count" : wcounts[x], 
+		"linked" : 0
 		})
 
 
@@ -87,12 +89,13 @@ for x in occurrences.keys():
 		st1 = x + ":" + y
 		st2 = x + ":" + y
 		if st1 not in edges and st2 not in edges:
-			if occurrences[x][y] > 2:
+			if occurrences[x][y] > minimum_count_for_link:
 				edges[st1] = {
 				"source" : x,
 				"target" : y,
 				"weight" : occurrences[x][y]
 				}
+
 		elif st1 not in edges:
 			edges[st2]["weight"] += occurrences[x][y]
 		else:
@@ -102,6 +105,12 @@ graphd["links"] = list(edges.values())
 
 ngraph = nx.node_link_graph(graphd, multigraph=False)
 
+for x in graphd["links"]:
+	t1 = x["source"]
+	t2 = x["target"]
+	for y in graphd["nodes"]:
+		if y["id"] == t1 or y["id"] == t2:
+			y["linked"] += 1
 
 
 #print(ngraph.edges)

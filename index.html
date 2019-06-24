@@ -166,26 +166,36 @@ var height = 600;
 var color = d3.scaleOrdinal(d3.schemeCategory10);
 
 
-var label = {
+graph.nodes = graph.nodes.filter(function(d){
+	if(d.linked == 0){
+		return false
+	}
+	return true
+})
+
+
+/*var label = {
     'nodes': [],
     'links': []
-};
+};*/
 
-graph.nodes.forEach(function(d, i) {
+/*graph.nodes.forEach(function(d, i) {
     label.nodes.push({node: d});
     label.nodes.push({node: d});
     label.links.push({
         source: i * 2,
         target: i * 2 + 1
     });
-});
+});*/
+
+
 
 /*var labelLayout = d3.forceSimulation(label.nodes)
     .force("charge", d3.forceManyBody().strength(-50))
     .force("link", d3.forceLink(label.links).distance(0).strength(2))*/;
 
 var graphLayout = d3.forceSimulation(graph.nodes)
-    .force("charge", d3.forceManyBody().strength(-100))
+    .force("charge", d3.forceManyBody().strength(-500))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("x", d3.forceX(width / 2).strength(1))
     .force("y", d3.forceY(height / 2).strength(1))
@@ -222,7 +232,7 @@ var link = container.append("g").attr("class", "links")
     .append("line")
     .attr("stroke", "#aaa")
     .attr("stroke-width", function(d){
-    	return d.weight/10
+    	return d.weight/5
     });
 
 var node = container.append("g").attr("class", "nodes")
@@ -241,7 +251,7 @@ var node = container.append("g").attr("class", "nodes")
 
 
 node.append("circle").attr("r", function(d){
-    	return 2 * Math.sqrt(d.count/Math.PI)
+    	return 4 * Math.sqrt(d.count/Math.PI)
     })
     .attr("fill", function(d) { return color(d.group); })
 
@@ -255,7 +265,7 @@ node.append("text")
 		return true
 	})
 	.text(function(d){
-		return d.word	
+		return d.word + " : " + d.count
 	})
 
 console.log(node)
@@ -396,6 +406,7 @@ function renderTable(tabledata){
     d3.select('.tdoc-body').remove()
     d3.selectAll(".tdoc-row").remove()
    var table = d3.select("#dc-doc-table")
+   					.attr("class", "table")
    var thead = table.append("thead").attr("class", "tdoc-head")
    var tbody = table.append("tbody")
                    .attr("class", "tdoc-body")
@@ -424,7 +435,8 @@ function renderTable(tabledata){
 		.data(tabledata)
 		.enter()
 		.append("tr")
-		.attr("class", "tdoc-row")
+
+		.attr("class", "tdoc-row mb-3")
 
 	var cells = rows
 		.selectAll("td")
