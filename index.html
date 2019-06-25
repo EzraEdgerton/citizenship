@@ -9,12 +9,15 @@
 			.hidden {
 				display: none;
 			}
-
+			.highlighted {
+				background-color: lightblue;
+			}
 		</style>
 	</head>
 	<body>
 		<div class="container-fluid">
 			<div class="row">
+				<div class="col-1"></div>
 				<div class="col-lg-4">
 					<div id="making-skills">
 						
@@ -27,21 +30,8 @@
 				</div>
 
 			</div>
-
-		<div class="row">
-							<div class="col-12">
-		<h5>Word co-occurrence graph</h5>
-		<input type="text" id="search-input" placeholder="search word in graph"/>
-		<div id="svggraph" >
-			<svg id="viz" style="border-style:solid; border-width: 1px">
-				
-			</svg>
-			
-		</div>
-	</div>
-		</div>
-		<div class="row">
-			<div class="col-10">
+			<div class="row justify-content-center">
+			<div class="col-10" style="height : 400px; overflow-y: auto">
 				<table id="dc-doc-table">
 					
 				</table>
@@ -49,6 +39,43 @@
 			</div>
 		</div>
 		</div>
+		<div class="row justify-content-center mt-2">
+			<div class="col-10">
+				<button class="btn btn-primary" id="toggle-view">Toggle Views</button>
+			</div>
+		</div>
+		<div class="row justify-content-center mb-5">
+			<div class="col-10 hidden " id="network-graph">
+				<h4>Word co-occurrence graph</h4>
+				<input type="text" id="search-input" placeholder="search word in graph"/>
+				<div id="svggraph" >
+					<svg id="viz" style="border-style:solid; border-width: 1px">
+						
+					</svg>
+					
+				</div>
+			</div>
+			<div class="col-10" id="word-tables">
+				<h4>Word co-occurrence tables</h4>
+				<div class="row">
+					<div class="col-6" style="overflow: auto; height: 600px">
+						<h5>Top words in corpus</h5>
+						<table id="top-word-table">
+							
+						</table>
+					</div>
+					<div class="col-1"></div>
+					<div class="col-5" style="overflow: auto; height: 600px">
+						<h5>Top words in related to "<span id="selected-word"></span>"</h5>
+						<table id="word-co-table">
+							
+						</table>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+
 	</body>
 	 <script type="text/javascript" src="src/jquery-3.3.1.min.js"></script>
 	 <script type="text/javascript" src="src/bootstrap.min.js"></script>
@@ -160,18 +187,36 @@
 	 	})
 	 	var svg = d3.select("#force_svg")
 	 	var graph = await d3.json("data.json")
-	 	console.log(graph)
+
+	 	var top_words_data  = []
+	 	var top_co_words = {}
+
+
+	 	graph.nodes.forEach(function(d){
+	 		top_words_data.push({ "word" : d.word, "count" : d.count, "links" : d.linked})
+	 		top_co_words[d.word] = []
+	 	})
+	 	graph.links.forEach(function(d){
+	 		if(d.source != d.target){
+	 			top_co_words[d.target].push({"word" : d.source, "score" : d.weight})
+	 			top_co_words[d.source].push({"word" : d.target, "score" : d.weight})
+	 		}
+	 		
+	 	})
+
+
+
 	 	var width = 1000;
 var height = 600;
 var color = d3.scaleOrdinal(d3.schemeCategory10);
 
 
-graph.nodes = graph.nodes.filter(function(d){
+/*graph.nodes = graph.nodes.filter(function(d){
 	if(d.linked == 0){
 		return false
 	}
 	return true
-})
+})*/
 
 
 /*var label = {
@@ -455,7 +500,125 @@ function renderTable(tabledata){
 		})
 
 
-}
+}//renderTable
+
+
+
+	 	console.log(top_words_data)
+	 	console.log(top_co_words)
+	 	var ttable = d3.select("#top-word-table").attr("class", "table")
+	 	var tthead = ttable.append("thead")
+	 	var ttbody = ttable.append("tbody")
+
+	 	var theaders = ["word", "count", "links"]
+
+	 	tthead.append("tr")
+	 		.selectAll("th")
+	 		.data(theaders)
+	 		.enter()
+	 		.append("th")
+	 		.text(function(d){
+	 			return d
+	 		}).on("click", function(d){
+	 			ttrows.sort(function(a,b){
+	 				return b[d] - a[d]
+	 			})
+	 		})
+
+	 	var ttrows = ttbody.selectAll("tr")
+	 						.data(top_words_data.sort(function(a,b){
+	 							return b.count - a.count
+	 						}))
+	 						.enter()
+	 						.append("tr")
+	 						.on("click", function(d){
+	 							d3.select('.highlighted').classed("highlighted", false)
+	 							d3.select(this).classed("highlighted", true)
+	 							renderLinksTableRows(d.word)
+	 							})
+	 						
+	 	ttrows.selectAll("td").data(function(row){
+			return theaders.map(function(column){
+				return {column: column, value : row[column]}
+			})
+		}
+	 	).enter().append("td").text(function(d){
+	 			return d.value
+	 	})
+	 	var cheaders = ["word", "score"]
+
+	 	var ctable = d3.select('#word-co-table').attr("class", "table")
+
+	 	var chead = ctable.append("thead")
+	 	var cbody = ctable.append("tbody")
+
+	 	chead.append('tr')
+	 		.selectAll('th')
+	 		.data(cheaders)
+	 		.enter()
+	 		.append('th')
+	 		.text(function(d){
+	 			return d
+	 		}).on("click", function(d){
+	 			crows.sort(function(a, b){
+	 				return b[d] - a[d]
+	 			})
+	 		})
+	 	var crows
+	 	function renderLinksTableRows(word){
+
+
+	 		var rangeExt = d3.extent(top_co_words[word], function(d){
+	 			return d.score
+	 		})
+	 		console.log(rangeExt)
+	 		console.log(top_co_words[word])
+	 		d3.selectAll(".crow").remove()
+	 		$('#selected-word').text(word)
+	 		 crows = cbody.selectAll("tr")
+	 			.data(top_co_words[word].sort(function(a,b){
+	 				return b.score - a.score
+	 			}))
+	 			.enter()
+	 			.append("tr")
+	 			.attr("class" , "crow")
+	 			.style("border", function(d){
+	 				return "2px solid " + d3.interpolateBlues(d.score/rangeExt[1])
+	 			})
+	 			.on("click", function(d){
+	 				renderLinksTableRows(d.word)
+	 			})
+
+	 		crows.selectAll('td').data(function(row){
+	 			return cheaders.map(function(column){
+	 				return {column: column, value:row[column]}
+	 				})
+	 			})
+	 			.enter()
+	 			.append("td")
+	 			.text(function(d){
+	 				return d.value
+	 			})
+	 		
+
+
+	 	}
+
+
+
+	 	var count = 0
+	 	$('#toggle-view').on("click", function(d){
+	 		if(count % 2 == 0){
+	 			$('#word-tables').addClass("hidden")
+	 			$('#network-graph').removeClass("hidden")
+	 		}
+	 		else{
+	 			$('#word-tables').removeClass("hidden")
+	 			$('#network-graph').addClass("hidden")
+	 		}
+	 		count++
+	 	})
+
 	 	}
 
 	 	wrapper()

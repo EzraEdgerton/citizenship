@@ -8,11 +8,17 @@ import collections
 import networkx as nx
 from nltk.corpus import stopwords
 
+from nltk.stem import WordNetLemmatizer 
+  
+lemmatizer = WordNetLemmatizer()
+
 
 
 #s=set(stopwords.words('english'))
 #s = ["a", "the", "an", "and", "that", "they", "of", "on"]
-s = ['makes', 'many', 'way','also','theres','lot','see','dont','people','today','one','america', 'american', 'americans' ,'all', 'just', 'being', 'over', 'both', 'through', 'yourselves', 'its', 'before', 'herself', 'had', 'should', 'to', 'only', 'under', 'ours', 'has', 'do', 'them', 'his', 'very', 'they', 'not', 'during', 'now', 'him', 'nor', 'did', 'this', 'she', 'each', 'further', 'where', 'few', 'because', 'doing', 'some', 'are', 'our', 'ourselves', 'out', 'what', 'for', 'while', 'does', 'above', 'between', 't', 'be', 'we', 'who', 'were', 'here', 'hers', 'by', 'on', 'about', 'of', 'against', 's', 'or', 'own', 'into', 'yourself', 'down', 'your', 'from', 'her', 'their', 'there', 'been', 'whom', 'too', 'themselves', 'was', 'until', 'more', 'himself', 'that', 'but', 'don', 'with', 'than', 'those', 'he', 'me', 'myself', 'these', 'up', 'will', 'below', 'can', 'theirs', 'my', 'and', 'then', 'is', 'am', 'it', 'an', 'as', 'itself', 'at', 'have', 'in', 'any', 'if', 'again', 'no', 'when', 'same', 'how', 'other', 'which', 'you', 'after', 'most', 'such', 'why', 'a', 'off', 'i', 'yours', 'so', 'the', 'having', 'once']
+#s = ['america', 'americans', 'american', 'makes', 'many', 'way','also','theres','lot','see','dont','people','today','one','all', 'just', 'being', 'over', 'both', 'through', 'yourselves', 'its', 'before', 'herself', 'had', 'should', 'to', 'only', 'under', 'ours', 'has', 'do', 'them', 'his', 'very', 'they', 'not', 'during', 'now', 'him', 'nor', 'did', 'this', 'she', 'each', 'further', 'where', 'few', 'because', 'doing', 'some', 'are', 'our', 'ourselves', 'out', 'what', 'for', 'while', 'does', 'above', 'between', 't', 'be', 'we', 'who', 'were', 'here', 'hers', 'by', 'on', 'about', 'of', 'against', 's', 'or', 'own', 'into', 'yourself', 'down', 'your', 'from', 'her', 'their', 'there', 'been', 'whom', 'too', 'themselves', 'was', 'until', 'more', 'himself', 'that', 'but', 'don', 'with', 'than', 'those', 'he', 'me', 'myself', 'these', 'up', 'will', 'below', 'can', 'theirs', 'my', 'and', 'then', 'is', 'am', 'it', 'an', 'as', 'itself', 'at', 'have', 'in', 'any', 'if', 'again', 'no', 'when', 'same', 'how', 'other', 'which', 'you', 'after', 'most', 'such', 'why', 'a', 'off', 'i', 'yours', 'so', 'the', 'having', 'once']
+#s = []
+s = [ 'many', 'way','also','theres','lot','see','dont','today','one','all', 'just', 'being', 'over', 'both', 'through', 'yourselves', 'its', 'before', 'herself', 'had', 'should', 'to', 'only', 'under', 'ours', 'has', 'do', 'them', 'very', 'they', 'not', 'during', 'now', 'nor', 'did', 'this', 'each', 'further', 'where', 'few', 'because', 'doing', 'some', 'are', 'our', 'ourselves', 'out', 'what', 'for', 'while', 'does', 'above', 'between', 't', 'be', 'we', 'who', 'were', 'here', 'by', 'on', 'about', 'of', 'against', 's', 'or', 'own', 'into',  'down', 'your', 'from', 'there', 'been', 'whom', 'too', 'themselves', 'until', 'more', 'himself', 'that', 'but', 'don', 'with', 'than', 'those', 'he', 'me', 'myself', 'these', 'up', 'will', 'below', 'can', 'theirs', 'my', 'and', 'then', 'is', 'am', 'it', 'an', 'as', 'itself', 'at', 'have', 'in', 'any', 'if', 'again', 'no', 'when', 'same', 'how', 'other', 'which', 'you', 'after', 'most', 'such', 'why', 'a', 'off', 'i', 'yours', 'so', 'the', 'having', 'once']
 
 f = open("formatted_citizenship.json", "r")
 d = json.load(f)
@@ -26,6 +32,8 @@ for x in d:
 	thing = d[x]["text"].lower().translate(str.maketrans('', '', string.punctuation))
 	tfiltered = list(filter(lambda w: not w in s, thing.split()))
 
+	tfiltered = map(lambda x: lemmatizer.lemmatize(x), tfiltered)
+	tfiltered = list(tfiltered)
 	corpus.append(tfiltered)
 
 dct = Dictionary(corpus)
@@ -88,7 +96,7 @@ edges = dict()
 for x in occurrences.keys():
 	for y in occurrences[x].keys():
 		st1 = x + ":" + y
-		st2 = x + ":" + y
+		st2 = y + ":" + x
 		if st1 not in edges and st2 not in edges:
 			if occurrences[x][y] > minimum_count_for_link:
 				edges[st1] = {
