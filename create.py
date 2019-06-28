@@ -32,8 +32,8 @@ for x in d:
 	thing = d[x]["text"].lower().translate(str.maketrans('', '', string.punctuation))
 	tfiltered = list(filter(lambda w: not w in s, thing.split()))
 
-	tfiltered = map(lambda x: lemmatizer.lemmatize(x), tfiltered)
-	tfiltered = list(tfiltered)
+	#tfiltered = map(lambda x: lemmatizer.lemmatize(x), tfiltered)
+	#tfiltered = list(tfiltered)
 	corpus.append(tfiltered)
 
 dct = Dictionary(corpus)
