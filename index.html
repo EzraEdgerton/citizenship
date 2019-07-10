@@ -110,7 +110,7 @@
 					}
 					else{
 						if(d[key] == "y"){
-							personobj.makingSkill = key
+							personobj.makingskill = key
 						}
 					}
 				}
@@ -134,7 +134,7 @@
 			console.log(things)
 
 		  var ndx                 = crossfilter(things),
-		      Skilldimension        = ndx.dimension(function(d) {return d.makingSkill;}),
+		      Skilldimension        = ndx.dimension(function(d) {return d.makingskill;}),
 		      Cdimension = ndx.dimension(function(d) {return d.citizenship;})
 		      Sumgroup       = Skilldimension.group().reduceSum(function(d) {return 1});
 		      Cgroup       = Cdimension.group().reduceSum(function(d) {return 1});
@@ -164,7 +164,7 @@
           .x(d3.scaleBand().domain(["Failed","Almost Recognized","Recognized","Almost Participatory","Participatory","Almost Transformative","Transformative"]))
           .xUnits(dc.units.ordinal)
           .brushOn(false)
-          .xAxisLabel('Citizenship Proficiencies')
+          .xAxisLabel('Citizenship Type')
           .yAxisLabel('Count')
           .dimension(Cdimension)
           .barPadding(0.1)
@@ -455,7 +455,7 @@ function renderTable(tabledata){
    var thead = table.append("thead").attr("class", "tdoc-head")
    var tbody = table.append("tbody")
                    .attr("class", "tdoc-body")
-   var columns = ['name', 'makingSkill', 'citizenship', 'textanswer']
+   var columns = ['name', 'makingskill', 'citizenship', 'textanswer']
    thead.append("tr")
        .selectAll("th").data(columns)
            .enter()
